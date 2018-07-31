@@ -4,10 +4,9 @@ PHONY += all clean install uninstall gen_nv_symvers
 .PHONY: $(PHONY)
 
 KVER := $(shell uname -r)
-OFA_DIR ?= /usr/src/ofa_kernel
-OFA_KERNEL ?= $(shell ( test -d $(OFA_DIR)/$(KVER) && echo $(OFA_DIR)/$(KVER) ) || ( test -d $(OFA_DIR)/default && echo $(OFA_DIR)/default ) || ( test -d /var/lib/dkms/mlnx-ofed-kernel/ && ls -d /var/lib/dkms/mlnx-ofed-kernel/*/build ) || ( echo $(OFA_DIR) ))
+KDIR := /lib/modules/$(KVER)/build
 
-ccflags-y += -I$(OFA_KERNEL)/include/ -I$(OFA_KERNEL)/include/rdma
+ccflags-y += -I$(KDIR)/include/ -I$(KDIR)/include/rdma
 PWD  := $(shell pwd)
 MODULES_DIR := /lib/modules/$(KVER)
 KDIR := $(MODULES_DIR)/build
@@ -59,7 +58,7 @@ else
 	$(info Warning: nv-p2p.h was not found on the system, going to use compat_nv-p2p.h)
 	/bin/cp -f $(PWD)/compat_nv-p2p.h $(PWD)/nv-p2p.h
 endif
-	cp -rf $(OFA_KERNEL)/Module.symvers .
+	cp -rf $(KDIR)/Module.symvers .
 	cat nv.symvers >> Module.symvers
 	make -C $(KDIR) $(MAKE_PARAMS) M=$(PWD) modules
 
